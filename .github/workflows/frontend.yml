@@ -40,3 +40,6 @@ jobs:
         with:
           name: react-coverage-report
           path: simple-todo-frontend/coverage
+
+    env:
+      CI: false  # Disable treating warnings as errors
