@@ -20,23 +20,22 @@ jobs:
         with:
           node-version: '18'
 
-      # This path is correct according to your project structure
-      - name: Install Frontend Dependencies
+      # CORRECTED STEP: Use 'npm ci' for reliability and add 'chmod' to fix permissions
+      - name: Install Dependencies and Fix Permissions
         working-directory: ./simple-todo-frontend
-        run: npm install --force
+        run: |
+          npm ci
+          chmod +x ./node_modules/.bin/react-scripts
 
-      # This path is correct
-      - name: Build Frontend
+      - name: Run React Build
         working-directory: ./simple-todo-frontend
         run: npm run build
 
-      # This path is correct
-      - name: Run Frontend Tests
+      - name: Run tests with coverage
         working-directory: ./simple-todo-frontend
         run: npm test -- --coverage --watchAll=false
 
-      # This path is correct
-      - name: Upload Frontend Coverage
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: react-coverage-report
@@ -59,38 +58,24 @@ jobs:
           java-version: '17'
           cache: maven
 
-      # === CORRECTED STEP 1: Build the backend API ===
-      # The working directory now correctly points to 'simple-todo-backend'.
       - name: Build the backend application
         working-directory: ./simple-todo-backend
         run: mvn -B package
 
-      # === CORRECTED STEP 2: Start the backend server ===
-      # The path to the JAR file now uses the correct directory.
-      # The '&' runs it as a background process.
       - name: Start backend API server
         run: |
-          # IMPORTANT: Please verify the final .jar filename inside the 'target' folder.
-          # It is likely named after the artifactId in your pom.xml.
           java -jar ./simple-todo-backend/target/simple-todo-backend-0.0.1-SNAPSHOT.jar &
 
-      # === STEP 3: Wait for the server to be ready ===
-      # This step is crucial to prevent tests from running too early.
       - name: Wait for backend to start
         run: |
           echo "Waiting for backend to launch on port 8080..."
-          # This command waits for up to 60 seconds for a successful connection.
-          # If your app uses a different port or health endpoint, adjust this line.
           timeout 60s bash -c 'until curl -s http://localhost:8080/actuator/health > /dev/null; do sleep 1; done'
           echo "Backend is up and running!"
 
-      # === STEP 4: Run the REST Assured tests ===
-      # This working directory points to your API test module, which is correct.
       - name: Run REST Assured Integration Tests
         working-directory: ./simple-todo-api-tests
         run: mvn clean test jacoco:report
 
-      # === STEP 5: Upload artifacts ===
       - name: Upload Backend Code Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -99,7 +84,7 @@ jobs:
 
       - name: Upload Allure Test Results
         uses: actions/upload-artifact@v4
-        if: always() # Upload results even if the test step fails
+        if: always()
         with:
           name: allure-results
           path: simple-todo-api-tests/target/allure-results
