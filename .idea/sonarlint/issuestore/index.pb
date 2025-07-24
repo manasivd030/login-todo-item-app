@@ -46,3 +46,15 @@ N
 .github/workflows/api-test.yml,3\a\3a2a64b443c3f66ceaeee2b29f1d760caf9b7382
 V
 &simple-todo-frontend/package-lock.json,b\1\b16bf758802b911252e9feddb281f5ac431a3826
+?
+babel.config.js,7\7\775bd43a34022cef87b6af825cbd551f29473f73
+>
+jest.config.js,8\8\881d5d47bdc17ef8facebef59b68b5fc099a0293
+P
+ simple-todo-frontend/src/App.css,7\4\74060d0f199dded398703c93231a59cd052f4019
+T
+$simple-todo-frontend/src/App.test.js,1\d\1d5fc0ff8a3604709714602f5ec8d41d56466842
+T
+$simple-todo-frontend/babel.config.js,e\c\eccd867e28a4db8a5754adb49a9a87d357777079
+S
+#simple-todo-frontend/jest.config.js,d\c\dc35618f97121d5b1bf3010caabd4c092a86ad18
