@@ -58,3 +58,5 @@ T
 $simple-todo-frontend/babel.config.js,e\c\eccd867e28a4db8a5754adb49a9a87d357777079
 S
 #simple-todo-frontend/jest.config.js,d\c\dc35618f97121d5b1bf3010caabd4c092a86ad18
+d
+4simple-todo-frontend/node_modules/.package-lock.json,5\2\5296639f51e730d0632d72c23f0c3408c0c2ebc5
