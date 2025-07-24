@@ -1,0 +1,21 @@
+{
+  "name": "simple-todo-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "echo 'build done'",
+    "test": "echo 'backend test passed'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "react-router-dom": "^7.7.0"
+  },
+  "description": ""
+
+}

@@ -1,0 +1,38 @@
+name: Run REST Assured API Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven
+
+      - name: Run REST Assured Tests with Coverage
+        working-directory: simple-todo-api-tests
+        run: mvn clean test jacoco:report
+
+      - name: Upload Code Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: simple-todo-api-tests/target/site/jacoco/index.html
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: simple-todo-api-tests/target/allure-results
