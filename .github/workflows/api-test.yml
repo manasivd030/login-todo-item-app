@@ -14,22 +14,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Clean and install dependencies
-        run: |
-          rm -rf node_modules
-          npm install --force
+
+      # This path is correct according to your project structure
+      - name: Install Frontend Dependencies
         working-directory: ./simple-todo-frontend
-      - name: Run React build
+        run: npm install --force
+
+      # This path is correct
+      - name: Build Frontend
+        working-directory: ./simple-todo-frontend
         run: npm run build
+
+      # This path is correct
+      - name: Run Frontend Tests
         working-directory: ./simple-todo-frontend
-      - name: Run tests with coverage
         run: npm test -- --coverage --watchAll=false
-        working-directory: ./simple-todo-frontend
-      - name: Upload coverage report
+
+      # This path is correct
+      - name: Upload Frontend Coverage
         uses: actions/upload-artifact@v4
         with:
           name: react-coverage-report
@@ -37,59 +44,62 @@ jobs:
     env:
       CI: false
 
-  run-rest-assured-tests:
-    name: Run REST Assured Tests
+  run-backend-tests:
+    name: Build, Start, and Test Backend API
     runs-on: ubuntu-latest
     needs: build-frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: maven
 
-      # === NEW STEP 1: Build the backend API so it can be run ===
-      # This assumes your backend API code is in a directory like 'simple-todo-api'.
-      # You MUST update 'simple-todo-api' to the correct directory name.
-      - name: Build the backend API
-        working-directory: ./simple-todo-api # <-- IMPORTANT: Change this to your API's directory
-        run: mvn -B package # '-B' is for non-interactive mode
+      # === CORRECTED STEP 1: Build the backend API ===
+      # The working directory now correctly points to 'simple-todo-backend'.
+      - name: Build the backend application
+        working-directory: ./simple-todo-backend
+        run: mvn -B package
 
-      # === NEW STEP 2: Start the backend server in the background ===
-      # The '&' at the end is crucial. It runs the server as a background process.
+      # === CORRECTED STEP 2: Start the backend server ===
+      # The path to the JAR file now uses the correct directory.
+      # The '&' runs it as a background process.
       - name: Start backend API server
         run: |
-          # IMPORTANT: You MUST change the path and .jar filename to match your project.
-          java -jar ./simple-todo-api/target/your-api-artifact-id-0.0.1-SNAPSHOT.jar &
+          # IMPORTANT: Please verify the final .jar filename inside the 'target' folder.
+          # It is likely named after the artifactId in your pom.xml.
+          java -jar ./simple-todo-backend/target/simple-todo-backend-0.0.1-SNAPSHOT.jar &
 
-      # === NEW STEP 3: Wait for the server to be ready before testing ===
-      # This step prevents tests from running before the application has fully started.
+      # === STEP 3: Wait for the server to be ready ===
+      # This step is crucial to prevent tests from running too early.
       - name: Wait for backend to start
         run: |
           echo "Waiting for backend to launch on port 8080..."
-          # This command waits until port 8080 is open.
-          # Change 8080 if your API uses a different port.
+          # This command waits for up to 60 seconds for a successful connection.
+          # If your app uses a different port or health endpoint, adjust this line.
           timeout 60s bash -c 'until curl -s http://localhost:8080/actuator/health > /dev/null; do sleep 1; done'
           echo "Backend is up and running!"
 
-      # === YOUR ORIGINAL TEST STEP (now runs after server is up) ===
-      - name: Run REST Assured Tests with Coverage
+      # === STEP 4: Run the REST Assured tests ===
+      # This working directory points to your API test module, which is correct.
+      - name: Run REST Assured Integration Tests
         working-directory: ./simple-todo-api-tests
         run: mvn clean test jacoco:report
 
-      - name: Upload Code Coverage Report
+      # === STEP 5: Upload artifacts ===
+      - name: Upload Backend Code Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: simple-todo-api-tests/target/site/jacoco/index.html
 
-      - name: Upload Allure Results
+      - name: Upload Allure Test Results
         uses: actions/upload-artifact@v4
-        if: always() # Upload results even if tests fail
+        if: always() # Upload results even if the test step fails
         with:
           name: allure-results
           path: simple-todo-api-tests/target/allure-results
